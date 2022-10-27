@@ -1,14 +1,9 @@
-import numpy as np
-from parse_reports import parse_dwell_times
-from parse_reports import parse_control_points
-import datetime as date
-
 def dose_calculation(P,dwell_table,treatment_date):
     from math import exp, log
     import numpy as np
     from numpy import genfromtxt
     import datetime as date
-    import string
+
     # Source data
     f = open("./SourceData/source",'r')
     line = f.readline()
@@ -107,8 +102,6 @@ def dose_calculation(P,dwell_table,treatment_date):
     gl = gl_interp(r)
     
     # Load 2D anisotropy function - F(r,theta) - table and interpolate
-    from scipy.interpolate import interp2d
-
     F_table = genfromtxt('./SourceData/F.csv', delimiter=',')
     def inter1d(vy,vx,y):
         return vx[0]+((vx[1]-vx[0])/(vy[1]-vy[0]))*(y-vy[0])

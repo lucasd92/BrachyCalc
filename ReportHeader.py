@@ -1,6 +1,3 @@
-from matplotlib.pyplot import table
-
-
 class ReportHeader:
     """
     Información del Paciente: Nombre, ID, fecha del reporte
