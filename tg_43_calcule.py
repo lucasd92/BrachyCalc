@@ -93,18 +93,92 @@ def dose_calculation(P,dwell_table,treatment_date):
 
     # Load Radial dose function - gL(r) - table and interpolate
     from numpy import genfromtxt
-    from scipy.interpolate import interp1d
+    # from scipy.interpolate import interp1d
 
     gl_table = genfromtxt('./SourceData/gl.csv', delimiter=',')
-    gl_interp = interp1d(gl_table[...,0], gl_table[...,1],bounds_error=False,fill_value="extrapolate")
+    # gl_interp = interp1d(gl_table[...,0], gl_table[...,1],bounds_error=False,fill_value="extrapolate")
 
     gl = np.zeros(npos)
-    gl = gl_interp(r)
+    # gl = gl_interp(r)
     
     # Load 2D anisotropy function - F(r,theta) - table and interpolate
     F_table = genfromtxt('./SourceData/F.csv', delimiter=',')
     def inter1d(vy,vx,y):
         return vx[0]+((vx[1]-vx[0])/(vy[1]-vy[0]))*(y-vy[0])
+    
+    def get_indexes(array, value, lower_extrapolation = "nearest", upper_extrapolation = "nearest"):
+        # Find indexes in the table headers for interpolation
+        if value < array[0]:
+            if(lower_extrapolation == "linear"):
+                ind_lowerx = 0
+                ind_upperx = 1
+            elif(lower_extrapolation == "nearest"):
+                ind_lowerx = 0
+                ind_upperx = 0
+            else:
+                ind_lowerx = 0
+                ind_upperx = 0               
+        elif value > array[-1]:
+            if(upper_extrapolation == "linear"):
+                ind_lowerx = array.size -2
+                ind_upperx = array.size -1
+            elif(upper_extrapolation == "nearest"):
+                ind_lowerx = array.size -1
+                ind_upperx = array.size -1 
+            else:
+                ind_lowerx = array.size -1
+                ind_upperx = array.size -1                            
+        else:
+            for index,element in enumerate(array):
+                if array[index] >= value:
+                    ind_upperx = index
+                    ind_lowerx = index - 1
+                    break
+        return ind_lowerx, ind_upperx
+
+    def inter_vect1d(x_array, y_array, x, lower_extrapolation = "nearest", upper_extrapolation = "nearest"):
+        header_x = x_array
+        header_y = y_array
+        # Find X and Y index in the table headers
+        if x < header_x[0]:
+            if(lower_extrapolation == "linear"):
+                ind_lowerx = 0
+                ind_upperx = 1
+            elif(lower_extrapolation == "nearest"):
+                ind_lowerx = 0
+                ind_upperx = 0
+            else:
+                ind_lowerx = 0
+                ind_upperx = 0               
+        elif x > header_x[-1]:
+            if(upper_extrapolation == "linear"):
+                ind_lowerx = header_x.size -2
+                ind_upperx = header_x.size -1
+            elif(upper_extrapolation == "nearest"):
+                ind_lowerx = header_x.size -1
+                ind_upperx = header_x.size -1 
+            else:
+                ind_lowerx = header_x.size -1
+                ind_upperx = header_x.size -1                            
+        else:
+            for index,element in enumerate(header_x):
+                if header_x[index] >= x:
+                    ind_upperx = index
+                    ind_lowerx = index - 1
+                    break
+
+        val_lowerx = header_x[ind_lowerx]
+        val_upperx = header_x[ind_upperx]
+        val_lowery = header_y[ind_lowerx]
+        val_uppery = header_y[ind_upperx]
+
+        interpolated_value = inter1d([val_lowerx, val_upperx], [val_lowery, val_uppery],x) # ver
+
+        return interpolated_value
+
+    for index,x in enumerate(r):
+        gl[index] = inter_vect1d(gl_table[...,0], gl_table[...,1],r[index])
+    
     def inter2d_2(matrix,x,y):
         header_x = matrix[0,1:]
         header_y = matrix[1:,0]
