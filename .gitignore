@@ -2,4 +2,5 @@ __pycache__/*
 export/*
 dist/*
 build/*
+output/*
 gui.spec

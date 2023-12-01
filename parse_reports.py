@@ -24,8 +24,9 @@ def parse_dwell_times(path,encode='utf-8'):
                     table = np.vstack((table,np.asarray(arr_as_str.split(',')[:-2],dtype=float)))
                 else:
                     table = np.asarray(arr_as_str.split(',')[:-2],dtype=float)
+    table_dt = np.stack((table[...,0],table[...,3],table[...,4],table[...,5],table[...,-1]),axis=-1)
 
-    return table,name,id,is_right_report
+    return table_dt,name,id,is_right_report
 
 def parse_control_points(path,encode='utf-8'):
     is_right_report = False

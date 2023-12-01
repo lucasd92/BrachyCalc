@@ -41,25 +41,24 @@ def _openAndParseReports(self):
         error_flag = 1
     if error_flag == 1:
         return
-    table_dt = np.stack((table_dtr[...,0],table_dtr[...,3],table_dtr[...,4],table_dtr[...,5],table_dtr[...,-1]),axis=-1)
-    return name_cpr, id_cpr, treatment_date, table_dt, table_cpr
+    return name_cpr, id_cpr, treatment_date, table_dtr, table_cpr
 
 def btn_dtr_onClick(self):
     filename = fd.askopenfilename(
-    title='Open Dwell Time Report',
-    initialdir='./',
-    filetypes=(('Comma Separated Values','*.csv'),
-    ('All files','*.*')))
+        title='Open Dwell Time Report',
+        initialdir='./',
+        filetypes=(('Comma Separated Values','*.csv'),
+        ('All files','*.*')))
     self.ent_dtr.delete(0,"end")
     self.ent_dtr.insert(0,filename)
 
 
 def btn_cpr_onClick(self):
     filename = fd.askopenfilename(
-    title='Open Control Points Report',
-    initialdir='./',
-    filetypes=(('Comma Separated Values','*.csv'),
-    ('All files','*.*')))
+        title='Open Control Points Report',
+        initialdir='./',
+        filetypes=(('Comma Separated Values','*.csv'),
+        ('All files','*.*')))
     self.ent_cpr.delete(0,"end")
     self.ent_cpr.insert(0,filename)
 
@@ -71,9 +70,11 @@ def btn_report_onClick(self):
 
     table_list = []
     for index,point in enumerate(control_points_table):
-        dose = np.round(dose_calculation(point[0:3]/10,dwell_times_table,date)/100,2)
-        diff = np.round(np.abs((point[-1]-dose)/point[-1])*100,2)
-        table_list.append([str(point[0:3]/10), str(dose), str(point[-1]), str(diff)])
+        point_coordinates = point[0:3]
+        point_dose = point[-1]
+        dose = dose_calculation(point_coordinates,dwell_times_table,date)
+        diff = np.round(np.abs((point_dose-dose)/point_dose)*100,2)
+        table_list.append([str(point_coordinates), str(dose), str(point_dose), str(diff)])
     
     paciente = Paciente(name, id, datetime.now().strftime('-%d-%m-%Y'))
 
@@ -81,7 +82,7 @@ def btn_report_onClick(self):
                         main_title = 'Centro de Medicina Nuclear y Radioterapia',
                         sub_title = 'Pte. Dr. Néstor Kirchner',
                         aditional_data = (paciente.nombre_paciente + ' - ID: ' + paciente.id_paciente + ' ' + paciente.dia_reporte),
-                        table_header = [[ 'Punto N°', 'Coordenadas', 'Resultado del \nCálculo [Gy]', 'Resultado del \nTPS [Gy]', 
+                        table_header = [[ 'Punto N°', 'Coordenadas [cm]', 'Resultado del \nCálculo [Gy]', 'Resultado del \nTPS [Gy]', 
                         'Diferencia %', 'Observaciones'],],
                         table_title = 'Resultado del cálculo independiente de dosis en los puntos de control',
                         logo_path = 'logo.jpg'
@@ -105,8 +106,10 @@ def btn_calc_onClick(self):
     
     result = ''
     for index,point in enumerate(control_points_table):
-        dose = np.round(dose_calculation(point[0:3]/10,dwell_times_table,date)/100,2)
-        result = result + ('El punto ' + str(point[0:3]/10) + ' da ' + str(dose) + ' cGy y debería dar: ' + str(point[-1]) + ' cGy\n')
+        point_coordinates = point[0:3]
+        point_dose = point[-1]
+        dose = dose_calculation(point_coordinates,dwell_times_table,date)
+        result = result + ('El punto ' + str(point_coordinates) + ' da ' + str(dose) + ' Gy y debería dar: ' + str(point_dose) + ' Gy\n')
 
     messagebox.showinfo(title='Calculation for patient ' + name + ', ID: ' + id, message=result)
 
@@ -114,11 +117,8 @@ if __name__ == "__main__":
 
 
     treatment_date = date.datetime.strptime('10/10/22', '%d/%m/%y')
-    table_dtr,name_dtr,id_dtr,is_right_report_dtr = parse_dwell_times('./SagiPlanReports/fx3dwellp.csv')
+    table_dt,name_dtr,id_dtr,is_right_report_dtr = parse_dwell_times('./SagiPlanReports/fx3dwellp.csv')
     table_cpr,name_cpr,id_cpr,is_right_report_cpr = parse_control_points('./SagiPlanReports/fx3cp.csv')
-
-
-    table_dt = np.stack((table_dtr[...,0],table_dtr[...,3],table_dtr[...,4],table_dtr[...,5],table_dtr[...,-1]),axis=-1)
     
     name = name_cpr
     id = id_cpr
@@ -126,13 +126,13 @@ if __name__ == "__main__":
     dwell_times_table = table_dt
     control_points_table = table_cpr
 
-      
-
     table_list = []
     for index,point in enumerate(control_points_table):
-        dose = np.round(dose_calculation(point[0:3]/10,dwell_times_table,date2)/100,2)
-        diff = np.round(np.abs((point[-1]-dose)/point[-1])*100,2)
-        table_list.append([str(point[0:3]/10), str(dose), str(point[-1]), str(diff)])
+        point_coordinates = point[0:3]
+        point_dose = point[-1]
+        dose = dose_calculation(point_coordinates,dwell_times_table,date)
+        diff = np.round(np.abs((point_dose-dose)/point_dose)*100,2)
+        table_list.append([str(point_coordinates), str(dose), str(point_dose), str(diff)])
     
     paciente = Paciente(name, id, datetime.now().strftime('-%d-%m-%Y'))
 
@@ -140,7 +140,7 @@ if __name__ == "__main__":
                         main_title = 'Centro de Medicina Nuclear y Radioterapia',
                         sub_title = 'Pte. Dr. Néstor Kirchner',
                         aditional_data = (paciente.nombre_paciente + ' - ID: ' + paciente.id_paciente + ' ' + paciente.dia_reporte),
-                        table_header = [[ 'Punto N°', 'Coordenadas', 'Resultado del \nCálculo [Gy]', 'Resultado del \nTPS [Gy]', 
+                        table_header = [[ 'Punto N°', 'Coordenadas [cm]', 'Resultado del \nCálculo [Gy]', 'Resultado del \nTPS [Gy]', 
                         'Diferencia %', 'Observaciones'],],
                         table_title = 'Resultado del cálculo independiente de dosis en los puntos de control',
                         logo_path = 'logo.jpg'

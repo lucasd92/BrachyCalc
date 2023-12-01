@@ -3,7 +3,7 @@ class ReportHeader:
     Información del Paciente: Nombre, ID, fecha del reporte
     """
     def __init__(self, document_title = None, main_title = None, sub_title = None, aditional_data = None,
-    table_title = None, table_header = [['','','','','',''],], logo_path = 'logo.png'):
+    table_title = None, table_header = [['','','','','',''],], logo_path = 'logo.jpg'):
         self.document_title = document_title
         self.main_title = main_title
         self.sub_title = sub_title
