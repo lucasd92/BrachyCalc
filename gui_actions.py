@@ -109,7 +109,7 @@ def btn_calc_onClick(self):
         point_coordinates = point[0:3]
         point_dose = point[-1]
         dose = dose_calculation(point_coordinates,dwell_times_table,date)
-        result = result + ('El punto ' + str(point_coordinates) + ' da ' + str(dose) + ' Gy y debería dar: ' + str(point_dose) + ' Gy\n')
+        result = result + ('Point ' + str(point_coordinates) + ' Calculated ' + str(dose) + ' Gy vs. TPS: ' + str(point_dose) + ' Gy\n')
 
     messagebox.showinfo(title='Calculation for patient ' + name + ', ID: ' + id, message=result)
 
